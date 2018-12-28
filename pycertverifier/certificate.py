@@ -16,32 +16,19 @@ from .errors import InvalidCertificateDataTypeException, InvalidCertificateExcep
 
 class Cert(object):
     def __init__(self, cert_data, data_type, cert_store=CertStore()):
-        #print("#############################")
         self._cert = self._cert_load(cert_data, data_type)
         self._cert_store = cert_store
         self._subject = self._cert_subject()
-        #print("Cert subject: %s" % self._subject)
         self._issuer = self._cert_issuer()
-        #print("Cert issuer: %s" % self._issuer)
         self._fingerprint = self._cert_fingerprint()
-        #print("Cert fingerprint: %s" % self._fingerprint)
         self._pub_key = self._cert_pub_key()
-        #print("Cert public key: %s" % self._subject)
         self._subject_key_id = self._cert_subject_key_identifier()
-        #print("Cert SKI: %s" % self._subject_key_id)
         self._authority_key_id = self._cert_authority_key_identifier()
-        #print("Cert AKI: %s" % self._authority_key_id)
         self._root = self._cert_is_root()
-        #print("Cert root: %s" % self._root)
         self._aia = self._cert_aia()
-        #print("Cert aia: %s" % self._aia)
         self._ocsp = self._cert_ocsp()
-        #print("Cert ocsp: %s" % self._ocsp)
         self._crl = self._cert_crl()
-        #print("Cert crl: %s" % self._subject)
         self._revoked = self._cert_is_revoked()
-        #print("Cert revoked: %s" % self._revoked)
-        #print("#############################")
 
     def _cert_load(self, cert_data, data_type):
         if data_type not in ('PEM', 'DER'):
@@ -100,32 +87,19 @@ class Cert(object):
     def _cert_aia(self):
         aia = None
         if self._cert and not self._root:
-            #print("Getting AIA for %s" % self._subject)
             aia_ext = self._cert.extensions.get_extension_for_oid(ExtensionOID.AUTHORITY_INFORMATION_ACCESS)
-            #print("aia_ext = %s" % aia_ext.value)
             for ad in aia_ext.value:
-                #print('ad = %s' % ad)
-                #print('ad.access_method = %s' % ad.access_method)
-                #print('ad.access_location.value = %s' % ad.access_location.value)
                 if ad.access_method == AuthorityInformationAccessOID.CA_ISSUERS:
                     aia_uri = ad.access_location.value
-                    # print("Trying AIA uri: %s" % aia_uri)
                     aia_data = None
                     try:
-                        #print("Fetching AIA from %s" % aia_uri)
                         with urllib.request.urlopen(aia_uri) as response:
                             aia_data = response.read()
-                            #if aia_data:
-                            #    print("Got data fpr uri: %s" % aia_uri)
-                            #else:
-                            #    print("No data for uri: %s" % aia_uri)
                         if aia_data:
                             aia = MyCert(aia_data, "DER", self._cert_store)
-                            #print("aia._aia = %s" % aia._aia)
                             break
                     except Exception as e:
                         logging.debug("%s AIA uri %s download error: %s" % (self.__str__(), aia_uri, e))
-                        #traceback.print_exc()
             if aia == None:
                 aia = self._cert_store.get_cert(self._issuer)
         return aia
@@ -137,7 +111,6 @@ class Cert(object):
             for ad in ocsp_ext.value:
                 if ad.access_method == AuthorityInformationAccessOID.OCSP:
                     ocsp_uri = ad.access_location.value
-                    #print("Trying OCSP uri: %s" % ocsp_uri)
                     ocsp_data = None
                     try:
                         ocsp_req_builder = x509.ocsp.OCSPRequestBuilder()
