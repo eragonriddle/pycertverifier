@@ -16,6 +16,12 @@ class InvalidCertificateDataTypeException(Exception):
     '''
     pass
 
+class InvalidCRLDataTypeException(Exception):
+    '''
+    Raised when an invalid crl data type is presented for a particular operation
+    '''
+    pass
+
 class InvalidCRLException(Exception):
     '''
     Raised when an invalid CRL is used for verifying a certificate

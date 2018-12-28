@@ -199,12 +199,13 @@ class Cert(object):
                 elif ocsp.certificate_status == x509.ocsp.OCSPCertStatus.GOOD:
                     return False
             if self._crl:
-                # Add CRL time check
                 if self._aia:
+                    if self._crl.is_expired():
+                        raise InvalidCRLException("%s CRL has expired" % (self.__str__()))
                     if self._crl.is_valid(self._aia.cert_pub_key()):
                         return self._crl.is_revoked(self._cert.serial_number)
                     else:
-                        raise InvalidCRLException("%s CRL at uri %s cannot be verified with cert %s" % (self.__str__(), crl_uri, self.aia.__str__()))
+                        raise InvalidCRLException("%s CRL cannot be verified with cert %s" % (self.__str__(), self.aia.__str__()))
         return None
 
     def is_root(self):
@@ -216,7 +217,7 @@ class Cert(object):
     def ocsp_revoked(self):
         if self._cert:
             if self._ocsp:
-                return self._ocsp.response_status
+                return self._ocsp.certificate_status == x509.ocsp.OCSPCertStatus.REVOKED
         return None
 
     def cert_is_valid(self):
@@ -245,4 +246,7 @@ class Cert(object):
 
     def cert_subject(self):
         return self._subject
+
+    def cert_fingerprint(self):
+        return self._fingerprint
 
