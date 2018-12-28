@@ -13,13 +13,13 @@ root_cert_path = ''
 test_cert_path = ''  
 
 with open(root_cert_path, 'rb') as rc:  
-    root_cert_data = rc.read()  
+&nbsp;&nbsp;&nbsp;&nbsp;root_cert_data = rc.read()  
 root_cert = Cert(root_cert_data, 'PEM')  
 cert_store = CertStore()  
 cert_store.add_cert(root_cert)  
     
 with open(test_cert_path, 'rb') as rc:  
-    test_cert_data = rc.read()  
+&nbsp;&nbsp;&nbsp;&nbsp;test_cert_data = rc.read()  
 test_cert = Cert(test_cert_data, 'PEM', cert_store)  
 
 print("Certificate is valid = %s" % test_cert.cert_is_valid())  
